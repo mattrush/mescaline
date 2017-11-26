@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# ps2banners
+# get banners from process listing sections returned by e.client.sh, bourne again shell
+# written by mrush 10.2016
+# m@root.dance
+# https://github.com/nomasters
+
+e_package () {	# accepts preformated list of binaries running, derived from the first field of the ps command on a target host.
+  # the following pipeline produces correct input for this script.
+  # ps aux |grep -v \] |grep root |grep -v 'grep root' |rev |cut -d : -f1 |rev |cut -d ' ' -f2- |cut -d ' ' -f1 |grep -v vmtools |sort -u
+  file="$1"
+  package=$(dpkg -S "$file" 2>/dev/null |cut -d : -f1)
+  echo "$package" |sed -e '/^$/d'
+}
+
+e_load () {	# converts a debian package name into the full banner with package-name and version.
+  package=$1
+  banner=$(dpkg -l |grep "$package" 2>/dev/null |cut -d ' ' -f3- |tr -s ' ' |cut -d ' ' -f-2)
+  echo "$banner" 
+}
+
+e_master () {
+  declare -a items
+  while read name; do
+    package=$(e_package "$file" 2>/dev/null |sed -e '/^$/d')
+    banner=$(e_load "$package" 2>/dev/null |sed -e '/^$/d')
+    [[ $banner != '' ]] && items+=("$banner")
+  done
+  for i in "${items[@]}"; do
+    echo "$i"
+  done #|column -t
+}
+
+e_master

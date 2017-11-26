@@ -1,0 +1,5 @@
+#!/bin/bash
+
+while read x; do
+  ps aux |grep -v \] |grep root |grep -v 'grep root' |rev |cut -d : -f1 |rev |cut -d ' ' -f2- |cut -d ' ' -f1 |grep -v vmtools |sort -u
+done

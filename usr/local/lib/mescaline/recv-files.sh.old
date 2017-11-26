@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# todo: identify which file is incoming via a keyed header comment line. and, if unknown, as in the case of sending pillaged files, place them in /pillage.
+
+mkdir -pv ./incoming
+
+while true; do			# loop until killed. when a file fineshes coming in, respawn to listen for the next one.
+ timestamp=$(date +%s)
+ nc -nvvvlp 9999 |tee ./incoming/$timestamp.file 
+ clear
+done
+
+

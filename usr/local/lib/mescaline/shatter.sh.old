@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# lib/shatter.sh
+# pre-escalation enumeration-script log parser, bourne again shell
+# written by mrush 10.2016
+# m@root.dance
+# https://github.com/nomasters
+
+##############
+# variables
+##############
+
+#ts=$(date +%s)
+#varDir=/var/enum/shatter
+#tmpDir=/tmp/enum/shatter
+#inbox=$varDir/in-$host
+#outbox=$varDir/out-host
+
+declare -a titleArray
+
+##############
+# options
+##############
+
+file=$1
+[[ -z $file ]] && file=$in/$ts.e.log 
+
+##############
+# functions
+##############
+
+##############
+# flow control
+##############
+
+cat "$file" |nl -n ln  |grep '\[ ' |
+{
+  while read line; do
+    index=$(echo "$line" |cut -d ' ' -f1)
+    title=$(echo "$line" |rev |cut -d ' ' -f1 |rev)
+    titleArray+=("$index $title")
+  done
+
+  for i in "${!titleArray[@]}"; do
+    index=$(echo "${titleArray[$i]}" |cut -d ' ' -f1)
+    title=$(echo "${titleArray[$i]}" |rev |cut -d ' ' -f1 |rev)
+    endKey=$(($i+1))
+    endIndex=$(echo "${titleArray[$endKey]}" |cut -d ' ' -f1)
+   #--( determine how long the section is
+    index=$((index+1))			# offset
+    length=$((endIndex-index-2))
+   #--
+    echo [+] [section: ${title,,}]
+    shard=shard.${title,,}.txt
+    echo -e "[ ] $title \r" >>$shard
+    cat "$file" |sed -e '/^$/d' |nl -n ln |grep -A "$length" "^$index " |sed -e 's/^[0-9]\+[ ]\+[\t]*//' |sed -e 's/^\[.*\]/\n&/' |sed -e 's/^[^[]/&/' >>$shard
+  done
+  q=${#titleArray[@]}
+  echo [ ] [found $q sections]
+}
