@@ -1,5 +1,5 @@
 # mescaline
-Pre-privilege ESCALation enuMeration framework.
+Pre-privilege-ESCALation enuMeration tool.
 
 # Notes
 This is a tool I wrote in the Offensive Security PWK lab. I need to give it a clean re-write. I'm not sure it's currently usable.
